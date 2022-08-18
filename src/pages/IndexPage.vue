@@ -1,42 +1,71 @@
 <template>
   <q-page class="row items-center justify-evenly">
-    <example-component
-      title="Example component"
-      active
-      :todos="todos"
-      :meta="meta"
-    ></example-component>
+    <q-table style="min-width: 300px; max-width: 1024px" :dense="$q.screen.lt.md" :columns="columns" :rows="data"
+      row-key="link" />
   </q-page>
 </template>
 
 <script setup lang="ts">
-import { Todo, Meta } from 'components/models'
-import ExampleComponent from 'components/ExampleComponent.vue'
-import { ref } from 'vue'
+import axios from 'axios'
+import { QTableColumn } from 'quasar'
+import { onMounted, ref } from 'vue'
+import { UrlEnum } from '../enums/urls'
 
-const todos = ref<Todo[]>([
+type vacation = {
+  title: string
+  link: string,
+  time: string,
+  keywords: Array<string>,
+  owner: string
+}
+
+const columns: QTableColumn[] = [
   {
-    id: 1,
-    content: 'ct1'
+    name: 'title',
+    required: true,
+    label: 'Title',
+    align: 'left',
+    field: 'title',
+    sortable: true
   },
   {
-    id: 2,
-    content: 'ct2'
+    name: 'link',
+    required: true,
+    label: 'Created at',
+    align: 'left',
+    field: 'time',
+    sortable: true
   },
   {
-    id: 3,
-    content: 'ct3'
-  },
-  {
-    id: 4,
-    content: 'ct4'
-  },
-  {
-    id: 5,
-    content: 'ct5'
+    name: 'keywords',
+    required: true,
+    label: 'Tags',
+    align: 'left',
+    field: (row: vacation) => row.keywords.join(', '),
+    sortable: true
   }
-])
-const meta = ref<Meta>({
-  totalCount: 1200
-})
+]
+
+onMounted(async () => await fillTable())
+
+const fillTable = async () => {
+  const response = await getData()
+  data.value = response.vacations
+}
+
+const getData = async () => {
+  return (await axios({
+    method: 'post',
+    data: {
+      url: UrlEnum.BACKEND_VAGAS_GITHUB_URL,
+      keywords: ['node'],
+      actualPage: 1
+    },
+    url: `${process.env.API}/issue-page`,
+    responseType: 'json'
+  })).data
+}
+
+const data = ref<Record<string, unknown>[]>([])
+
 </script>
