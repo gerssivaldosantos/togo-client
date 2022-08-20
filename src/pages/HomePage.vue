@@ -1,34 +1,54 @@
 <template>
   <q-page style="padding: 20px" class="column items-center justify-evenly">
     <div class="header">
-      <q-select
-        style="width: 100%"
-        @update:model-value="(value: repositorieSelect) => value ? fillTable(value.request) : null"
-        outlined
-        v-model="repositorie"
-        clearable
-        :options="repositories"
-        option-value="request"
-        option-label="label"
-        label="Repositories"
-      />
       <div class="search-wrapper">
+        <q-select
+          @update:model-value="(value: repositorieSelect) => value ? fillTable(value.request) : null"
+          outlined
+          v-model="repositorie"
+          clearable
+          :options="repositories"
+          option-value="request"
+          option-label="label"
+          label="Repositories"
+        />
         <q-input outlined v-model="rawKeywords" label="Keywords" />
-        <q-btn @click="fillTable(repositorie?.request)" color="primary" label="Search" />
+        <q-btn
+          @click="fillTable(repositorie?.request)"
+          color="primary"
+          label="Search"
+        />
       </div>
       <h6 v-show="!!data" style="color: grey">
         {{ data?.issuesAmount }} Vacations for {{ repositorie?.label }}
       </h6>
     </div>
-    <q-table
-      no-data-label="Select an repository"
-      grid
-      auto-width
-      :dense="$q.screen.lt.md"
-      :columns="columns"
-      :rows="data?.vacations"
-      row-key="link"
-    />
+    <div class="content">
+      <q-table
+        no-data-label="Select an repository"
+        grid
+        auto-width
+        :dense="$q.screen.lt.md"
+        :columns="columns"
+        :rows="data?.vacations"
+        row-key="link"
+      >
+        <template v-slot:item="props">
+          <q-card class="my-card vacation-card">
+            {{
+            props.row.title.length > 35 ?
+            props.row.title.substring(0, 35) + '...' :
+            props.row.title
+            }}
+            <q-card-actions align="right">
+              <q-btn flat round color="red" icon="favorite" />
+              <q-btn flat round color="teal" icon="bookmark" />
+              <q-btn flat round color="primary" icon="share" />
+            </q-card-actions>
+          </q-card>
+        </template>
+      </q-table>
+    </div>
   </q-page>
 </template>
 
@@ -170,8 +190,9 @@ const columns: QTableColumn[] = [
   },
   {
     name: 'link',
+    format: (value: string) => new Date(value).toLocaleDateString('en-US'),
     required: true,
-    label: 'Created at',
+    label: 'Release',
     align: 'left',
     field: 'time',
     sortable: true
@@ -221,7 +242,7 @@ const data = ref<issuePage>()
 
 <style lang="scss">
 .header {
-  width: 100%
+  width: 100%;
 }
 .search-wrapper {
   display: flex;
@@ -229,12 +250,17 @@ const data = ref<issuePage>()
   width: 100%;
   justify-content: space-between;
   align-items: flex-end;
-  padding-top: 20px
+  padding-top: 20px;
 }
 
 .search-wrapper > * {
   width: 100%;
-  margin-bottom: 20px
+  margin-bottom: 20px;
 }
 
+.vacation-card {
+  margin-bottom: 20px;
+  width: 100%;
+  padding: 15px;
+}
 </style>
