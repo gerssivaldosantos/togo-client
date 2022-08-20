@@ -1,65 +1,87 @@
 <template>
-  <q-page class="column items-center justify-evenly">
-    <q-select
-    style="width: 200px"
-      @update:model-value="(value: repositorieSelect) => value ? fillTable(value.request) : null"
-      outlined
-      v-model="repositorie"
-      clearable :options="repositories"
-      option-value="request"
-      option-label="label"
-      label="Repositories" />
-    <q-table no-data-label="Select an repository" grid auto-width :dense="$q.screen.lt.md" :columns="columns"
-      :rows="data" row-key="link" />
+  <q-page style="padding: 20px" class="column items-center justify-evenly">
+    <div class="header">
+      <q-select
+        style="width: 100%"
+        @update:model-value="(value: repositorieSelect) => value ? fillTable(value.request) : null"
+        outlined
+        v-model="repositorie"
+        clearable
+        :options="repositories"
+        option-value="request"
+        option-label="label"
+        label="Repositories"
+      />
+      <div class="search-wrapper">
+        <q-input outlined v-model="rawKeywords" label="Keywords" />
+        <q-btn @click="fillTable(repositorie?.request)" color="primary" label="Search" />
+      </div>
+      <h6 v-show="!!data" style="color: grey">
+        {{ data?.issuesAmount }} Vacations for {{ repositorie?.label }}
+      </h6>
+    </div>
+    <q-table
+      no-data-label="Select an repository"
+      grid
+      auto-width
+      :dense="$q.screen.lt.md"
+      :columns="columns"
+      :rows="data?.vacations"
+      row-key="link"
+    />
   </q-page>
 </template>
 
 <script setup lang="ts">
 import axios from 'axios'
 import { QTableColumn, useQuasar } from 'quasar'
-import { ref } from 'vue'
+import { computed, reactive, ref } from 'vue'
 import { UrlEnum } from '../enums/urls'
 
 const $q = useQuasar()
 
 type issueRow = {
   title: string
-  link: string,
-  time: string,
-  keywords: Array<string>,
+  link: string
+  time: string
+  keywords: Array<string>
   owner: string
 }
- type issuePage = {
-    url: string,
-    issuesAmount: number,
-    actualPage: number,
-    pages: number,
-    vacations: issueRow[],
+type issuePage = {
+  url: string
+  issuesAmount: number
+  actualPage: number
+  pages: number
+  vacations: issueRow[]
 }
 
- type requestScrapPage = {
-    url: string,
-    keywords: string[],
-    actualPage?: number
+type requestScrapPage = {
+  url: string
+  keywords: string[]
+  actualPage?: number
 }
 
 type repositorieSelect = {
-  request: requestScrapPage,
+  request: requestScrapPage
   label: string
 }
 
 const repositorie = ref<repositorieSelect>()
 
-const keywords = ref<string[]>([])
+const rawKeywords = ref<string>('')
+
+const keywords = computed(() =>
+  rawKeywords.value.split(',').map((keyword) => keyword.trim())
+)
 
 const actualPage = ref<number>(1)
 
-const repositories: repositorieSelect[] = [
+const repositories = reactive<repositorieSelect[]>([
   {
     label: 'Backend',
     request: {
       url: UrlEnum.BACKEND_VAGAS_GITHUB_URL,
-      keywords: keywords.value,
+      keywords: [],
       actualPage: actualPage.value
     }
   },
@@ -67,7 +89,7 @@ const repositories: repositorieSelect[] = [
     label: 'Frontend',
     request: {
       url: UrlEnum.FRONTEND_VAGAS_GITHUB_URL,
-      keywords: keywords.value,
+      keywords: [],
       actualPage: actualPage.value
     }
   },
@@ -75,7 +97,7 @@ const repositories: repositorieSelect[] = [
     label: 'Ux Design',
     request: {
       url: UrlEnum.UXDESIGN_VAGAS_GITHUB_URL,
-      keywords: keywords.value,
+      keywords: [],
       actualPage: actualPage.value
     }
   },
@@ -83,7 +105,7 @@ const repositories: repositorieSelect[] = [
     label: 'Android',
     request: {
       url: UrlEnum.ANDROID_VAGAS_GITHUB_URL,
-      keywords: keywords.value,
+      keywords: [],
       actualPage: actualPage.value
     }
   },
@@ -91,7 +113,7 @@ const repositories: repositorieSelect[] = [
     label: 'IOS',
     request: {
       url: UrlEnum.IOS_VAGAS_GITHUB_URL,
-      keywords: keywords.value,
+      keywords: [],
       actualPage: actualPage.value
     }
   },
@@ -99,7 +121,7 @@ const repositories: repositorieSelect[] = [
     label: 'PHP',
     request: {
       url: UrlEnum.PHP_VAGAS_GITHUB_URL,
-      keywords: keywords.value,
+      keywords: [],
       actualPage: actualPage.value
     }
   },
@@ -107,7 +129,7 @@ const repositories: repositorieSelect[] = [
     label: 'Vue.Js',
     request: {
       url: UrlEnum.VUEJS_VAGAS_GITHUB_URL,
-      keywords: keywords.value,
+      keywords: [],
       actualPage: actualPage.value
     }
   },
@@ -115,7 +137,7 @@ const repositories: repositorieSelect[] = [
     label: 'GoLang',
     request: {
       url: UrlEnum.GOLANG_VAGAS_GITHUB_URL,
-      keywords: keywords.value,
+      keywords: [],
       actualPage: actualPage.value
     }
   },
@@ -123,7 +145,7 @@ const repositories: repositorieSelect[] = [
     label: 'Flutter',
     request: {
       url: UrlEnum.FLUTTER_VAGAS_GITHUB_URL,
-      keywords: keywords.value,
+      keywords: [],
       actualPage: actualPage.value
     }
   },
@@ -131,11 +153,11 @@ const repositories: repositorieSelect[] = [
     label: 'ReactNative',
     request: {
       url: UrlEnum.REACTNATIVE_VAGAS_GITHUB_URL,
-      keywords: keywords.value,
+      keywords: [],
       actualPage: actualPage.value
     }
   }
-]
+])
 
 const columns: QTableColumn[] = [
   {
@@ -165,12 +187,16 @@ const columns: QTableColumn[] = [
 ]
 
 const fillTable = async (params?: requestScrapPage) => {
+  if (!params) {
+    return null
+  }
   try {
     $q.loading.show({
       delay: 0
     })
+    params.keywords = keywords.value
     const result = await doRequest(params)
-    data.value = result.vacations
+    data.value = result
   } catch (err) {
     console.error(err)
     $q.notify({ type: 'negative', caption: 'Server Error' })
@@ -178,16 +204,37 @@ const fillTable = async (params?: requestScrapPage) => {
   $q.loading.hide()
 }
 
-const doRequest = async (params?: requestScrapPage):Promise<issuePage> => {
+const doRequest = async (params?: requestScrapPage): Promise<issuePage> => {
   if (!params) throw new Error('The params are undefined').stack
-  return (await axios({
-    method: 'post',
-    data: params,
-    url: `${process.env.API}/issue-page`,
-    responseType: 'json'
-  })).data
+  return (
+    await axios({
+      method: 'post',
+      data: params,
+      url: `${process.env.API}/issue-page`,
+      responseType: 'json'
+    })
+  ).data
 }
 
-const data = ref<Record<string, unknown>[]>([])
-
+const data = ref<issuePage>()
 </script>
+
+<style lang="scss">
+.header {
+  width: 100%
+}
+.search-wrapper {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  justify-content: space-between;
+  align-items: flex-end;
+  padding-top: 20px
+}
+
+.search-wrapper > * {
+  width: 100%;
+  margin-bottom: 20px
+}
+
+</style>
