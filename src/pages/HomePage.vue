@@ -37,7 +37,7 @@
           <q-card class="my-card vacation-card">
             <div class="header">
               <div class="title-wrapper">
-                <h6 style="font-size: medium; color: rgba($primary, 0.8)">
+                <h6 style="font-size: medium; opacity: 65%;">
                   {{
                     props.row.title.length > 100
                       ? props.row.title.substring(0, 100) + '...'
