@@ -36,14 +36,20 @@
         <template v-slot:item="props">
           <q-card class="my-card vacation-card">
             {{
-            props.row.title.length > 35 ?
-            props.row.title.substring(0, 35) + '...' :
-            props.row.title
+              props.row.title.length > 35
+                ? props.row.title.substring(0, 35) + '...'
+                : props.row.title
             }}
             <q-card-actions align="right">
-              <q-btn flat round color="red" icon="favorite" />
-              <q-btn flat round color="teal" icon="bookmark" />
-              <q-btn flat round color="primary" icon="share" />
+              <q-btn flat round color="red" icon="fa-regular fa-heart" />
+              <q-btn flat round color="primary" icon="fa-regular fa-bookmark" />
+              <q-btn
+                @click="shareVacation(props.row.link)"
+                flat
+                round
+                color="teal"
+                icon="share"
+              />
             </q-card-actions>
           </q-card>
         </template>
@@ -55,8 +61,21 @@
 <script setup lang="ts">
 import axios from 'axios'
 import { QTableColumn, useQuasar } from 'quasar'
+import shareBottomDialogVue from 'src/components/shareBottomDialog.vue'
 import { computed, reactive, ref } from 'vue'
 import { UrlEnum } from '../enums/urls'
+
+const shareVacation = (url: string) => {
+  $q.dialog({
+    component: shareBottomDialogVue,
+    componentProps: {
+      url
+    }
+  })
+    .onOk(() => null)
+    .onCancel(() => null)
+    .onDismiss(() => null)
+}
 
 const $q = useQuasar()
 
