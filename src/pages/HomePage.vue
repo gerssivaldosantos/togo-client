@@ -37,7 +37,7 @@
           <q-card class="my-card vacation-card">
             <div class="header">
               <div class="title-wrapper">
-                <h6 style="font-size: medium; opacity: 65%;">
+                <h6 style="font-size: medium; opacity: 65%">
                   {{
                     props.row.title.length > 100
                       ? props.row.title.substring(0, 100) + '...'
@@ -47,6 +47,7 @@
               </div>
               <div class="close-button-wrapper">
                 <q-btn
+                @click="detailIssue(props.row.link)"
                   round
                   color="grey"
                   size="small"
@@ -60,11 +61,12 @@
                 <q-chip
                   v-for="keyword in props.row.keywords"
                   v-bind:key="keyword"
-                  outline
                   color="primary"
                   text-color="white"
                 >
-                  {{ keyword }}
+                  <span>
+                    {{ keyword }}
+                  </span>
                 </q-chip>
               </div>
               <div v-else class="no-keywords">
@@ -73,18 +75,25 @@
                 </q-chip>
               </div>
             </div>
-
-            <q-card-actions align="right">
-              <q-btn flat round color="primary" icon="fa-regular fa-heart" />
-              <q-btn flat round color="primary" icon="fa-regular fa-bookmark" />
-              <q-btn
-                @click="shareVacation(props.row.link)"
-                flat
-                round
-                color="teal"
-                icon="share"
-              />
-            </q-card-actions>
+            <div class="bottom">
+              {{ new Date(props.row.time).toLocaleDateString('en') }}
+              <q-card-actions align="right">
+                <q-btn flat round color="primary" icon="fa-regular fa-heart" />
+                <q-btn
+                  flat
+                  round
+                  color="primary"
+                  icon="fa-regular fa-bookmark"
+                />
+                <q-btn
+                  @click="shareVacation(props.row.link)"
+                  flat
+                  round
+                  color="teal"
+                  icon="share"
+                />
+              </q-card-actions>
+            </div>
           </q-card>
         </template>
       </q-table>
@@ -95,9 +104,19 @@
 <script setup lang="ts">
 import axios from 'axios'
 import { QTableColumn, useQuasar } from 'quasar'
+import issueDetailsVue from 'src/components/issueDetails.vue'
 import shareBottomDialogVue from 'src/components/shareBottomDialog.vue'
 import { computed, reactive, ref } from 'vue'
 import { UrlEnum } from '../enums/urls'
+
+const detailIssue = (url: string) => {
+  $q.dialog({
+    component: issueDetailsVue,
+    componentProps: {
+      url
+    }
+  })
+}
 
 const shareVacation = (url: string) => {
   $q.dialog({
@@ -353,4 +372,10 @@ const data = ref<issuePage>()
   width: 100%;
 }
 
+.vacation-card > .bottom {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
 </style>
