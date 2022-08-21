@@ -288,7 +288,7 @@ const fillTable = async (params?: requestScrapPage) => {
       delay: 0
     })
     params.keywords = keywords.value
-    const result = await doRequest(params)
+    const result = await getIssuePage(params)
     data.value = result
   } catch (err) {
     console.error(err)
@@ -297,7 +297,7 @@ const fillTable = async (params?: requestScrapPage) => {
   $q.loading.hide()
 }
 
-const doRequest = async (params?: requestScrapPage): Promise<issuePage> => {
+const getIssuePage = async (params?: requestScrapPage): Promise<issuePage> => {
   if (!params) throw new Error('The params are undefined').stack
   return (
     await axios({
