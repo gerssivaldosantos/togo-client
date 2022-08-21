@@ -30,7 +30,6 @@ const buttonsOptions = ref([
     flat: true,
     round: true,
     icon: 'fa-brands fa-linkedin',
-    color: 'secondary',
     size: 'medium'
   },
   {
@@ -39,7 +38,6 @@ const buttonsOptions = ref([
     target: '_blank',
     flat: true,
     round: true,
-    color: 'secondary',
     size: 'medium'
   },
   {
@@ -48,7 +46,6 @@ const buttonsOptions = ref([
     target: '_blank',
     flat: true,
     round: true,
-    color: 'secondary',
     size: 'medium'
   },
   {
@@ -57,7 +54,6 @@ const buttonsOptions = ref([
     target: '_blank',
     flat: true,
     round: true,
-    color: 'secondary',
     size: 'medium'
   }
 ])
