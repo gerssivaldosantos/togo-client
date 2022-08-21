@@ -35,13 +35,47 @@
       >
         <template v-slot:item="props">
           <q-card class="my-card vacation-card">
-            {{
-              props.row.title.length > 35
-                ? props.row.title.substring(0, 35) + '...'
-                : props.row.title
-            }}
+            <div class="header">
+              <div class="title-wrapper">
+                <h6 style="font-size: medium; color: rgba($primary, 0.8)">
+                  {{
+                    props.row.title.length > 100
+                      ? props.row.title.substring(0, 100) + '...'
+                      : props.row.title
+                  }}
+                </h6>
+              </div>
+              <div class="close-button-wrapper">
+                <q-btn
+                  round
+                  color="grey"
+                  size="small"
+                  flat
+                  icon="fa-solid fa-arrow-up-right-from-square"
+                />
+              </div>
+            </div>
+            <div class="content">
+              <div v-if="!!props.row.keywords.length" class="keywords">
+                <q-chip
+                  v-for="keyword in props.row.keywords"
+                  v-bind:key="keyword"
+                  outline
+                  color="primary"
+                  text-color="white"
+                >
+                  {{ keyword }}
+                </q-chip>
+              </div>
+              <div v-else class="no-keywords">
+                <q-chip outline icon="warning" color="primary">
+                  without keywords
+                </q-chip>
+              </div>
+            </div>
+
             <q-card-actions align="right">
-              <q-btn flat round color="red" icon="fa-regular fa-heart" />
+              <q-btn flat round color="primary" icon="fa-regular fa-heart" />
               <q-btn flat round color="primary" icon="fa-regular fa-bookmark" />
               <q-btn
                 @click="shareVacation(props.row.link)"
@@ -259,7 +293,7 @@ const doRequest = async (params?: requestScrapPage): Promise<issuePage> => {
 const data = ref<issuePage>()
 </script>
 
-<style lang="scss">
+<style scoped lang="scss">
 .header {
   width: 100%;
 }
@@ -278,8 +312,45 @@ const data = ref<issuePage>()
 }
 
 .vacation-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
   margin-bottom: 20px;
   width: 100%;
-  padding: 15px;
+  padding: 20px;
 }
+
+.vacation-card > .keywords > .header {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.vacation-card > .content {
+  width: 100%;
+  display: flex;
+  justify-items: flex-start;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  flex-direction: row;
+}
+
+.vacation-card > .header {
+  display: flex;
+  flex-direction: row;
+  align-items: start;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.vacation-card > .header > .close-button-wrapper {
+  width: fit-content;
+}
+
+.vacation-card > .header .title-wrapper {
+  width: 100%;
+}
+
 </style>
